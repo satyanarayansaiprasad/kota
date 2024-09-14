@@ -3,6 +3,7 @@ package com.example.callerid
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -42,19 +43,23 @@ class MainActivity : ComponentActivity() {
         requestPermissions()
 
         // Check if activity was triggered by an incoming call
-        val incomingNumber = intent.getStringExtra("INCOMING_NUMBER")
+        var incomingNumber = intent.getStringExtra("INCOMING_NUMBER")
+
+        Toast.makeText(this, "incomming number " + incomingNumber, Toast.LENGTH_LONG).show();
 
         setContent {
             MaterialTheme {
                 if (incomingNumber != null) {
                     // Show contact details for the incoming number
-                    val matchedContact = findContactByNumber(incomingNumber)
+
+                    val matchedContact = findContactByNumber(if(incomingNumber[0]=='+') incomingNumber.substring(3) else incomingNumber)
+
                     if (matchedContact != null) {
                         ShowContactInfoPopup(matchedContact)
                         // Send a notification
 //                        NotificationUtils.sendNotification(this, matchedContact.name, matchedContact.designation)
                     } else {
-                        ShowContactInfoPopup(Contact("Unknown caller", "Unknown", incomingNumber))
+                        ShowContactInfoPopup(Contact("Unknown caller", "Unknown", incomingNumber!!))
                     }
                 } else {
                     // Show default contact list
@@ -94,7 +99,7 @@ class MainActivity : ComponentActivity() {
                         .fillMaxWidth()
                 ) {
                     Text(
-                        text = "Incoming Call from ${contact.name}",
+                        text = "Incoming Call from: ${contact.name}",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -122,7 +127,7 @@ class MainActivity : ComponentActivity() {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .wrapContentSize(Alignment.Center)
+                    .wrapContentSize(Alignment.TopStart)
             ) {
                 ContactInfoPopup(
                     contact = contact,
