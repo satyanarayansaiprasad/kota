@@ -6,15 +6,25 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import java.io.InputStream
 
@@ -40,50 +50,86 @@ class MainActivity : ComponentActivity() {
                     // Show contact details for the incoming number
                     val matchedContact = findContactByNumber(incomingNumber)
                     if (matchedContact != null) {
-                        ContactInfoScreen(matchedContact)
+                        ShowContactInfoPopup(matchedContact)
                         // Send a notification
-                        NotificationUtils.sendNotification(this, matchedContact.name, matchedContact.designation)
+//                        NotificationUtils.sendNotification(this, matchedContact.name, matchedContact.designation)
                     } else {
-                        Text("Unknown Caller: $incomingNumber")
+                        ShowContactInfoPopup(Contact("Unknown caller", "Unknown", incomingNumber))
                     }
                 } else {
                     // Show default contact list
-                    ContactListScreen(contacts)
+//                    ContactListScreen(contacts)
+                }
+            }
+        }
+    }
+
+
+
+    @Composable
+    fun ContactInfoPopup(contact: Contact, onDismiss: () -> Unit) {
+        var visible by remember { mutableStateOf(true) }
+
+        AnimatedVisibility(
+            visible = visible,
+            enter = slideInVertically(
+                initialOffsetY = { -it }, // Slide down from the top
+                animationSpec = tween(durationMillis = 300)
+            ),
+            exit = slideOutVertically(
+                targetOffsetY = { -it }, // Slide up to the top
+                animationSpec = tween(durationMillis = 300)
+            )
+        ) {
+            Surface(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .wrapContentSize()
+                    .background(Color.Blue)
+                    .shadow(8.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth()
+                ) {
+                    Text(
+                        text = "Incoming Call from ${contact.name}",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(text = "Designation: ${contact.designation}", fontSize = 16.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(text = "Mobile: ${contact.mobile}", fontSize = 16.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(onClick = {
+                        visible = false
+                        onDismiss()
+                    }) {
+                        Text("OK")
+                    }
                 }
             }
         }
     }
 
     @Composable
-    fun ContactListScreen(contacts: List<Contact>) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            items(contacts) { contact ->
-                ContactCard(contact = contact)
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-        }
-    }
+    fun ShowContactInfoPopup(contact: Contact) {
+        var showPopup by remember { mutableStateOf(true) }
 
-    @Composable
-    fun ContactInfoScreen(contact: Contact) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            Text(
-                text = "Incoming Call from ${contact.name}",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "Designation: ${contact.designation}", fontSize = 16.sp)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "Mobile: ${contact.mobile}", fontSize = 16.sp)
+        if (showPopup) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .wrapContentSize(Alignment.Center)
+            ) {
+                ContactInfoPopup(
+                    contact = contact,
+                    onDismiss = { showPopup = false }
+                )
+            }
+
         }
     }
 
