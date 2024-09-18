@@ -20,6 +20,7 @@ class PhoneCallReceiver : BroadcastReceiver() {
                 mainActivityIntent.putExtra("INCOMING_NUMBER", incomingNumber)
                 mainActivityIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 context?.startActivity(mainActivityIntent)
+
             }
         }
     }

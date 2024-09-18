@@ -3,6 +3,7 @@ package com.example.callerid
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -28,13 +29,24 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import java.io.InputStream
+import kotlinx.coroutines.*
 
 class MainActivity : ComponentActivity() {
 
     private var contacts = listOf<Contact>()
 
+//
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Add flags to show activity over the lock screen
+        window.addFlags(
+            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
+                    WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or
+                    WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+        )
 
         // Load contacts from CSV file
         contacts = loadContacts()
@@ -45,29 +57,29 @@ class MainActivity : ComponentActivity() {
         // Check if activity was triggered by an incoming call
         var incomingNumber = intent.getStringExtra("INCOMING_NUMBER")
 
-        Toast.makeText(this, "incomming number " + incomingNumber, Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "Incoming number: $incomingNumber", Toast.LENGTH_LONG).show()
 
         setContent {
             MaterialTheme {
                 if (incomingNumber != null) {
                     // Show contact details for the incoming number
-
                     val matchedContact = findContactByNumber(if(incomingNumber[0]=='+') incomingNumber.substring(3) else incomingNumber)
 
                     if (matchedContact != null) {
                         ShowContactInfoPopup(matchedContact)
-                        // Send a notification
-//                        NotificationUtils.sendNotification(this, matchedContact.name, matchedContact.designation)
+                        // Send a notification with the caller's info
+                        NotificationUtils.sendNotification(this, matchedContact.name, matchedContact.designation)
                     } else {
                         ShowContactInfoPopup(Contact("Unknown caller", "Unknown", incomingNumber!!))
+                        // Send a notification for unknown callers
+                        NotificationUtils.sendNotification(this, "Unknown Caller", incomingNumber!!)
                     }
-                } else {
-                    // Show default contact list
-//                    ContactListScreen(contacts)
                 }
             }
         }
+
     }
+
 
 
 
@@ -127,7 +139,7 @@ class MainActivity : ComponentActivity() {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .wrapContentSize(Alignment.TopStart)
+                    .wrapContentSize(Alignment.Center)
             ) {
                 ContactInfoPopup(
                     contact = contact,

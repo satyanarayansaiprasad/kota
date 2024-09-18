@@ -62,6 +62,8 @@ dependencies {
     // Correct Kotlin DSL syntax for adding the CSV library
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.3.0")
     implementation ("androidx.core:core-ktx:1.10.1")
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0")
+
 
 
     testImplementation(libs.junit)
