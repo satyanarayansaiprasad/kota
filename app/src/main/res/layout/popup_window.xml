@@ -1,26 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
+    android:background="@drawable/background"
     android:padding="16dp"
-    android:background="@android:color/holo_blue_light">
+    tools:ignore="ExtraText">
+
+    <ImageButton
+        android:id="@+id/close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/baseline_close_24"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="16dp"
+        android:background="@null" />
 
     <TextView
-        android:id="@+id/caller_name"
-        android:layout_width="wrap_content"
+        android:id="@+id/callerName"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Caller Name"
-        android:textColor="@android:color/white"
         android:textSize="18sp"
-        android:textStyle="bold" />
+        android:textColor="@android:color/white"
+        android:textStyle="bold"
+        android:layout_below="@id/close"
+        android:layout_marginBottom="8dp" />
 
     <TextView
-        android:id="@+id/caller_designation"
-        android:layout_width="wrap_content"
+        android:id="@+id/callerDesignation"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Designation"
+        android:text="Caller Designation"
+        android:textSize="16sp"
         android:textColor="@android:color/white"
-        android:textSize="16sp" />
+        android:layout_below="@id/callerName"
+    android:layout_marginBottom="8dp" />
 
-</LinearLayout>
+    <TextView
+        android:id="@+id/callerNumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Caller Number"
+        android:textSize="16sp"
+        android:textColor="@android:color/white"
+        android:layout_below="@id/callerDesignation" />  <!-- Below callerDesignation -->
+
+</RelativeLayout>
